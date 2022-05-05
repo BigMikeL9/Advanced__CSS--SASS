@@ -239,10 +239,16 @@ testimonial__image {
 // ******************************************************
 // 'z-index' ⭐⭐⭐⭐⭐
 
-The 'z-index' ONLY works if we hava a specified position (ie: 'position: relative' or 'position: absolute')
+'z-index' ONLY works if we hava a specified position ('position: absolute', 'position: relative', 'position: fixed', or' position: sticky'). 
+'z-index' can also be used on 'display: grid' and 'display: flex', by default.
 
 .sidebar__link {
   position: relative;
+  z-index: 10;
+}
+
+.sidebar__link {
+  display: grid;
   z-index: 10;
 }
 
@@ -693,6 +699,28 @@ After watching the behind the scene units lecture --> https: https://www.udemy.c
       
 
 💃💃💃💃 Thats it. Now the empty CSS file is overwritten by the compiled Sass file 💃💃💃💃
+
+===================================================================================================
+===================================================================================================
+---SUMMARY---
+  
+1) npm init [enter and change names until done].  Now you have a fresh package.json file.
+
+2) npm install node-sass --save-dev
+
+3) npm install auto-prefixer live-server npm-run-all postcss-cli concat
+
+
+After they've installed you can manually add these scripts that he uses into package.json 👇👇👇
+
+"scripts": { "watch:sass": "node-sass sass/main.scss css/style.css -w", "devserver": "live-server --browser=firefox",
+"start": "npm-run-all --parallel devserver watch:sass",
+"compile:sass": "node-sass sass/main.scss css/style.comp.css", "prefix:css": "postcss --use autoprefixer -b 'last 10 versions' css/style.comp.css -o css/style.prefix.css",
+"compress:css": "node-sass css/style.prefix.css css/style.css --output-style compressed",
+"build:css": "npm-run-all compile:sass prefix:css compress:css" } 
+  
+===================================================================================================
+===================================================================================================
 
 
 // --------------------------------------------------------------------------------------
@@ -1153,6 +1181,7 @@ nav {
   display: flex;
   flex-direction: column;
   justify-content: space-between; // works along the y-axis since 'flex-direction' is set to 'column'
+  gap: 1rem 2rem; // ⭐⭐⭐ The gap CSS property sets the gaps (gutters) between rows and columns. Can be used with flex containers and grid containers. 'gap: {row-gap} {column-gap}'
 }
 
 
@@ -1876,9 +1905,11 @@ Desktop-First approach 👇
 
 // 🛑 ONE WAY OF USING MIXINS TO WRITE MEDIA QUERIES ---> using '@content' 🛑
 
+// IMPORTANT --> 'only screen and' --> media queries don't apply when printing only to screens
+
 // CREATING the mixin in '_mixin.scss' file
 @mixin responsive-phone {
-  @media (max-width: 37.5em) {   // 600px
+  @media only screen and (max-width: 37.5em) {   // 600px
     @content;
   }
 };
@@ -2106,10 +2137,527 @@ Link to video -->   https://www.udemy.com/course/advanced-css-and-sass/learn/lec
       height: 95vh;
       background-color: rgba($color-black, 0.8);
      
-// 👇 Asks the browser if it supports a certain property (need to specify a value for the poroperty DOESNT MATTER WHAT THE VALUE IS). And if it does --> execute the code inside 👇
+// 👇 Asks the browser if it supports a certain property (need to specify a value for the property DOESNT MATTER WHAT THE VALUE IS). And if it does --> execute the code inside 👇
      @supports (-webkit-backdrop-filter: blur(10px) or (backdrop-filter: blur(10px)) {
          -webkit-backdrop-filter: blur(10px);
          backdrop-filter: blur(10px);
          background-color: rgba($color-black, 0.3);
       }
     }
+
+
+// *****************************************************************************************************************************
+  // *****************************************************************************************************************************
+// Execute the code if the user is using a TOUCH DEVICE.
+
+  // Whenever we're using a device that cannot hover. ie: Whenever we we're using a device that uses TOUCH as its primary input
+@media only screen and (hover: none) {
+   height: 95vh;
+   background-size: cover;
+   background-position: top;
+   position: relative;
+}
+
+//When screen is below 'max-width: 56.25em' AND we're using a device that cannot hover.
+@media only screen and (max-width: 56.25em), 
+       only screen and (hover: none) {                                                    // opposite is '(hover: hover)'
+   height: 95vh;
+   background-size: cover;
+   background-position: top;
+   position: relative;
+}
+
+// *********************************************************************************************************************************************************************
+// *********************************************************************************************************************************************************************
+// *********************************************************************************************************************************************************************
+// *********************************************************************************************************************************************************************
+// GRID Layout
+
+
+<div class="container">
+  <div class="item item--1"></div>
+  <div class="item item--2"></div>
+  <div class="item item--3"></div>
+  <div class="item item--4"></div>
+  <div class="item item--5"></div>
+  <div class="item item--6"></div>
+</div>
+
+//----- A full column or a full row in Grid layout is called a 🌟TRACK🌟.
+
+.container {
+  display: grid;
+  
+                /-------------------------------------------------------------------------------------
+              // ---------- 🟢 'grid-template-rows' && 'grid-template-columns' 🟡 ----------
+                /-------------------------------------------------------------------------------------
+  grid-template-rows: 150px 150px; // --> TWO rows. Each '150px' HIGH. ⭐ So TWO rows, each 150px high ⭐
+  grid-template-columns: 150px 150px 150px; // --> THREE columns, Each '150px' WIDE.
+  
+ // -- 'repeat()' function 👇 --> Better way for defining 'grid-template-rows' && 'grid-template-columns'  
+  grid-template-columns: repeat(2, 150px); // 'grid-template-columns: repeat({number of columns}, {WIDTH of each column})'
+  
+ // -- if we want different columns to have different widths, we can do this [same for 'grid-template-rows']
+  grid-template-columns: repeat(2, 150px) 350px;  // --> means three columns. First 2 are 150px wide. And 3rd row is 350px wide
+  
+ // --------- 'fr' unit [Fractional unit] ---------
+ // ⭐⭐ 'fr' unit [Fractional unit] Represents a fraction of the available space.
+  grid-template-columns: repeat(2, 150px) 1fr; // --> means the third grid item in the row will occupy the remaining space available to fillup the rest of the column
+  
+ // Three columns. All the same size using 'fr' unit [Fractional unit] ⭐⭐
+  grid-template-columns: repeat(3, 1fr);
+  
+  // Three columns occupying all the available space, but the middle column has double the width of the first and third columns.
+  grid-template-columns: 1fr 2fr 1fr;
+  // ------------------------------------------------------------------------------------------------------------
+  
+  // We can use any units we want when specifying 'grid-template-columns' && 'grid-template-rows'
+  grid-template-columns: 50% 2fr 1fr; /* 🔴 IMPORTANT --> the percentage unit DOES NOT take the 'grid-gap' into account. It simply takes '50%' of the entire parent width. 
+                                                           where as 'fr' accounts for 'grid-gap' since its a fractional unit (represents a fraction of the available space) */
+                                          
+              /-------------------------------------------------------------------------------------
+            // ---------- 🟣 'grid-row-gap' && 'grid-column-gap' && ' grid-gap' 🟠 ----------
+              /-------------------------------------------------------------------------------------
+  grid-row-gap: 30px; // --> gap between rows
+  grid-column-gap: 50px; // --> gap between columns
+  grid-gap: 30px 50px; // --> ⭐ grid-gap: {grid-row-gap} {grid-column-gap}; ⭐
+  
+  
+  .item {
+    
+         '/-------------------------------------------------------------------------------------
+              // ---------- 🟣 Positioning Grid Items [WITH DEFAULT GRID LINE NUMBERS] (METHOD 1) 🟠 ----------
+            /-------------------------------------------------------------------------------------
+      &--1 {  
+        // Grid Layout's automatic placement algorithm placeS items in order from left to right, according to their order in HTML.
+        grid-row-start: 2; /* 'grid-row-start' is the number of row line inwhich we want an element to start/be positioned at. 
+                               So ' grid-row-start: 2;' means that 'item--1' will be placed in the SECOND row of the grid layout */
+        grid-row-end: 3;  /* 'grid-row-end' is the number of row line inwhich we want an element to END/be positioned at. */ Cleaner solution to use both 'grid-row-start' and 'grid-row-end' to                                                                                                                                  position an element in a grid cell.
+        
+        grid-colum-start: 2; /* places the element in column 2. Element starts at column 2 */
+        grid-colum-end: 3; /* also places the element in column 2, Element ends at column 3 */
+        
+                  // ⭐⭐⭐ SHORCUT USING 'grid-row' && 'grid-column' ⭐⭐⭐
+        grid-row: 2 / 3; /* grid-row: {where element starts} / {where element ends};   
+                            ie --> grid-row: {where element top side touches the row line 2} / {where element bottom side touches row line}; */
+        grid-column: 2 / 3; // grid-column: {where element starts} / {where element ends}; --> element will be positioned in second column
+        
+                // 🎈🎈🎈 SHORCUT FOR 'grid-row' && 'grid-column' USING 'grid-area' 🎪🎪🎪 {confusing 🛑 DONT USE 🛑}
+        grid-area: ; // grid-area: {ROW line number where elment STARTS} / {COLUMN line number where element STARTS} / {ROW line number where elment ENDS} / {COLUMN line number where element        ENDS};
+      }
+   
+      &--2 {
+        // 👇 Position 'item--2' in row 1 column 2 👇
+        grid-row: 1 / 2;
+        grid-column: 2 / 3; 
+      }
+
+            /-------------------------------------------------------------------------------------
+              // ---------- 🟣 Positioning Grid Items --> ⭐ Spanning Grid Items accross multiple grid cells inorder to occupy entire areas (3 different ways) ⭐ 🟠 ----------
+                 /-------------------------------------------------------------------------------------
+      &--3 {
+        grid-row: 1 / 2;
+        grid-column: 2 / 4; // this grid item will span accross 2 columns. From column line 2 to colum line 4
+        
+          // NOTE: If we have more items than we actually cells, then CSS Grid will simply add a new row or a new column. This is how the CSS Grid Algorithm works.
+                 // The newly added row/column by CSS Grid Algorithm is call an ⭐ IMPLICIT GRID ⭐
+      }
+    
+          ⭐⭐⭐⭐⭐ 'VERY IMPORTANT TO REMEMBER' ⭐⭐⭐⭐⭐⭐⭐  
+        // We can have multiple grid items in the same Grid Cell, stacked on top of each other by explicitly defining the positions using 'grid-row' && 'grid-column'
+//           // so here 'item-4' && 'item-5' will be stacked on top of each other, but 'item-5' will be on top since it has a higher z-index.
+           'A very usefull technique that is used alot with CSS grids like for image galleries where we can have elements overlaying each other to create grade effects'
+     &--4 {
+       grid-row: 1 / 2;
+       grid-column: 2 / 4;
+     }
+    
+     &--5 {
+       grid-row: 1 / 2;
+       grid-column: 2 / 4;
+       z-index: 10;
+     }
+    
+    // 🎭 Another way of spanning grid items ('span' keyword)
+    &--6 {
+       grid-column: 1 / span 3; // spane across three grid cells 
+     }
+    
+    // 🎨 Another way of spanning grid items (if we dont know how many columns we have, All we know is that we want it to extend until the end of the grid layout)
+    &--7 {
+       grid-column: 2 / -1;  // '-1' represents the end of the EXPLICIT grid layout
+     }
+   }    
+}
+
+
+    '/-------------------------------------------------------------------------------------
+              // ---------- GRID LINE NAMING  ----------
+          // ---- Positioning Grid Items [WITH CUSTOM ⭐ GRID LINE NAMES⭐] (METHOD 2) ----       🔴 [⭐⭐ USE THIS FOR HUGE LAYOUTS (a page with 12 columns) ⭐⭐] 🔴
+         /-------------------------------------------------------------------------------------
+.container {
+  display: grid;
+  
+                /-------------------------------------------------------------------------------------
+              // ---------- 🟢 Creating CUSTOM ⭐ GRID LINE NAMES ⭐ 🟡 [GOOD PRACTICE] ----------
+                /-------------------------------------------------------------------------------------
+/* NOTES: 
+       1. Best practice when naming GRID LINES is to give it a name that ⭐describes the content that will be inside the track⭐, and THEN say whether its                                                       the ⭐START or END⭐ (ie: [header-start]). 
+       2. '[header-start] 150px [header-end]' means that the first row will start at Grid Line '[header-start]', end at '[header-end]' and will be '150px' high.
+       3. We can give a Grid Line MORE THAN ONE NAME --> 'grid-template-rows: [header-start] 150px [header-end box-start];'
+       4. 🌟🌟🌟🌟 ITS GOOD PRACTICE TO ALWAYS NAME GRID LINES. ITS USSUALLY DONE THIS WAY IN A PROFESSIONAL LAYOUT 🌟🌟🌟🌟
+ */
+                  
+  grid-template-rows: [header-start] 150px [header-end box-start] 200px [box-end main-start] 400px [main-end footer-start] 100px [footer-end]; 
+  
+                    // GRID NAMES with 'repeat()' function
+                                     / 👇 when we have GRID LINE names in the 'repeat()' function then the gird layout creates a ⭐ NAMED SET OF GRID LINES ⭐
+  grid-template-columns: repeat(3, [col-start] 1fr [col-end]) 200px [grid-end]; // in this case first column in repeat() function will be called 'col-start 1' 
+  
+  .item {
+        /-------------------------------------------------------------------------------------
+              // ---------- 🟣 Using the GRID LINE NAMES we created to POSITION THE GRID ITEMS 🟠 ----------
+            /-------------------------------------------------------------------------------------
+          
+    &--1 {
+       grid-row: header-start / header-end;
+       grid-column: col-start 1 / grid-end;
+     }
+    
+    &--2 {
+       grid-row: box-start / main-end;
+       grid-column: col-end 3 / grid-end;
+     }
+    
+    &--3 {
+       grid-row: footer-start / footer-end;
+       grid-column: col-start 1 / grid-end;
+     }
+   }    
+}
+
+      '/-------------------------------------------------------------------------------------
+              // ----------  GRID AREAS NAMING using 'grid-template-areas' && 'grid-area' ---------- 
+          // ---- Positioning Grid Items [WITH CUSTOM ⭐ GRID AREA NAMES⭐] (METHOD 3) ----           🔴 [⭐⭐ USE THIS FOR SMALL/SIMPLE LAYOUTS (ie: 4x4 or 5x5 layouts) ⭐⭐] 🔴
+         /-------------------------------------------------------------------------------------
+
+.challenge {
+  width: 1000px;
+  margin: 30px auto;
+  
+  display: grid;
+  grid-template-rows: 100px 200px 400px 100px;
+  grid-template-columns: repeat(3, 1fr) 200px;
+  grid-gap: 30px;
+  
+  // ' grid-template-areas' --> Creates a representation with text of how our final layout is going to look like.
+  grid-template-areas: 'head head head head'
+                       'box-1 box-2 box-3 sidebar'
+                       'main main main sidebar'
+                       'footer footer footer footer'; /*  each string represesnts a ROW, and inside that string, every string/word represents a grid item. 
+                                                          [ie: "grid-template-areas: 'head head head head';" means that grid item with 'grid-area: head' will be in the first row and expands to take                                                             four columns]
+                                                      */
+  
+  // ⭐⭐⭐⭐⭐⭐ IMPORTANT --> To leave EMPTY grid cells when using 'grid-template-areas' use a dot '.' like 👇
+ /* grid-template-areas: '. head head .'
+                         'box-1 . box-3 sidebar'
+                         'main main . sidebar'
+                         'footer footer footer footer';  */
+
+  .header {
+     grid-area: head;
+  }
+  
+  .small-box-1 {
+    grid-area: box-1;
+  }
+    
+  .small-box-2 {
+    grid-area: box-2;
+  }
+  
+  .small-box-3 { 
+    grid-area: box-3;
+  }
+  
+  .sidebar {
+    grid-area: sidebar;
+  }
+  
+  .main-content {
+    grid-area: main;
+  }
+  
+  .footer {
+    grid-area: footer;
+  }
+}
+
+ '/-------------------------------------------------------------------------------------
+       '/-------------------------------------------------------------------------------------
+               '/-------------------------------------------------------------------------------------
+        // -------------- Difference between IMPLICIT Grids and EXPLICIT Grids -------------- ['grid-auto-rows:'], ['grid-auto-columns'] && ['grid-auto-flow']
+
+'EXPLICIT Grids' --> are Grids that we explicitly define how their rows and columns should look like.
+
+'IMPLICIT Grids' --> If we have more grid items that we have space, then CSS Grid automatically adds more tracks (a track is a complete row or column) to the Grid layout so that we can then fit all the remaining grid items in the Grid Layout. These added grid tracks together are called the 'IMPLICIT Grid'
+
+ 🔴🔴🔴 VERY IMPORTANT --> 'IMPLICIT Grids' and the abitlity to style them (as shown below 👇) is great for usecases where we dont know how many rows or columns ther eiwll be in our Grid Layout. (ie: if we have an AJAX call in an app where can load data from a server while the page is loading adn we dont know how many items are there). Control how the Grid Layout will look like if if we dont know how many items it will have. 🔴🔴🔴
+      
+// SIDE NOTE: Emmet code to create this HTML layout 👇👇👇 with one line of code --> .container>.item.item--$*8
+
+<div class="container">
+  <div class="item item--1">Modern</div>
+  <div class="item item--2">CSS</div>
+  <div class="item item--3">with</div>
+  <div class="item item--4">FlexBox</div>
+  <div class="item item--5">and =</div>
+  <div class="item item--6">Grid</div>
+  <div class="item item--7">is</div>
+  <div class="item item--8">Great</div>
+</div>
+
+.container {
+  width: 1000px;
+  margin: 1rem auto;
+  background-color: #ddd;
+  
+  display: grid;
+  grid-template-row: repeat(2, 150px); // two rows. each '150px' HIGH
+  grid-template-columns: repeat(2, 1fr); // two columns. each with widths to occupy the entire container
+  grid-gap: 30px
+  
+  // 👉 Styling 'IMPLICIT Grids' (grid containing tracks autmoatically added by CSS Grid, inorder to fit grid items that have no space in our 'EXPLICIT Grid')
+  grid-auto-rows: 80px; // now the automatically added rows/tracks will each have a height of '80px'
+   
+  // 👉 CSS adds rows to fit grid items that have no space in the 'EXPLICIT GRID' becacuse of the 'grid-auto-flow' which have a default value of 'row'
+  grid-auto-flow: column; // now CSS Grid will fill the grid items in COLUMNS (top to bottom) and will add new columns to fit grid items that dont fit in the 'EXPLICIT GRID'
+  grid-auto-columns: 0.5fr; // automatically added columns/tracks will each have HALF (0.5fr) of the WIDTH of grid items in the 'EXPLICIT Grid' 
+                                 // [' grid-auto-rows' is useless/irrelevant if we set 'grid-auto-flow: column;'. And vice-versa]
+  
+  .item{
+    padding: 20px;
+    color: white;
+    font-family: sans-serif;
+    background-color: orangered;
+  }
+}
+
+
+ '/-------------------------------------------------------------------------------------
+       '/-------------------------------------------------------------------------------------
+               '/-------------------------------------------------------------------------------------
+        // -------------- Aligning Grid Items to Grid Areas-------------- ['align-items'], ['justify-item'], ['align-self'] & ['justify-self']
+
+<div class="container">
+  <div class="item item--1">Modern</div>
+  <div class="item item--2">CSS</div>
+  <div class="item item--3">with</div>
+  <div class="item item--4">FlexBox</div>
+  <div class="item item--5">and =</div>
+  <div class="item item--6">Grid</div>
+  <div class="item item--7">is</div>
+  <div class="item item--8">Great</div>
+</div>
+
+.container {
+  width: 1000px;
+  margin: 1rem auto;
+  background-color: #ddd;
+  
+  display: grid;
+  grid-template-row: repeat(2, 150px); // two rows. each '150px' HIGH
+  grid-template-columns: repeat(2, 1fr); // two columns. each with widths to occupy the entire container
+  grid-gap: 30px ;
+  
+   // Aligning Grid items to Grid Areas (Simialr to FlexBox. We apply these properties to the Grid container)
+  align-items: center;   // center / end / start / stretch(default)     /* 👉 Aligns the items accross COLUMN-AXIS (y-axis/Vertically) [default value for align items is 'stretch' which means that grid                                                                                items stretch the entire HEIGHT of the container] */
+  justify-item: center;          '(NOT IN FLEXBOX, because flexbox is NOT 2-dimensional layout system like the Grid Layout)'  /* 👉 Aligns the items accross ROW-AXIS (x-axis/Horizontally) [default value for                                                                                                                         align items is 'stretch' which means that grid items stretch the entire WIDTH of                                                                                                                         the container] */
+ 
+  .item{
+    padding: 20px;
+    color: white;
+    font-family: sans-serif;
+    background-color: orangered;
+    
+    &--4 {
+      background-color: crimson;
+      grid-row: 2 / span 3;
+      
+      align-self: start;     // 👉 (Just like FLEXBOX) Overrides 'align-items' property just for the item its used on --> (VERTICALLY) 
+      justify-self: end;    '(NOT IN FLEXBOX, because flexbox is NOT 2-dimensional layout system like the Grid Layout)'     /* 👉 Overrides 'justify-items' property just for the item its used on -->                                                                                                                                     (HORIZONTALLY)  */
+    }
+    
+    &--7 {
+      background-color: pakevioletred;
+      grid-row: 1 / -1;
+    }
+  }
+}
+
+
+ '/-------------------------------------------------------------------------------------
+       '/-------------------------------------------------------------------------------------
+               '/-------------------------------------------------------------------------------------
+        // -------------- Aligning TRACKS to Grid Container --------------  ['justify-content'], ['align-content'] & ⭐ [grid-auto-flow: row dense;] ⭐
+
+
+<div class="container">
+  <div class="item item--1">Modern</div>
+  <div class="item item--2">CSS</div>
+  <div class="item item--3">with</div>
+  <div class="item item--4">FlexBox</div>
+  <div class="item item--5">and =</div>
+  <div class="item item--6">Grid</div>
+  <div class="item item--7">is</div>
+  <div class="item item--8">Great</div>
+</div>
+
+.container {
+  width: 1000px;
+  margin: 1rem auto;
+  background-color: #ddd;
+  
+  display: grid;
+  grid-template-row: repeat(2, 100px); // two rows. each '150px' HIGH
+  grid-template-columns: repeat(2, 200px); 
+  grid-gap: 30px;
+  
+  height: 1000px;
+  
+  justify-content: center; // center / start / end / space-between / space-evenly / space-around      // aligns Horizontally
+  align-content: center;  // aligns VERTICALLY
+  
+  grid-auto-flow: row dense; // ⭐⭐⭐⭐⭐ Sometimes the Grid Layout algorithm leaves empty cells/holes in the grid layout inorder to follow HTML order, inorder to avoid this add the 'dense' keyword to 'grid-auto-flow' property. This will make the grid layout have no holes, all the grid items packed together, and all the grid cells are filled with a Grid item. ⭐⭐⭐⭐⭐
+ 
+  .item{
+    padding: 20px;
+    color: white;
+    font-family: sans-serif;
+    background-color: orangered;
+    
+    &--4 {
+      background-color: crimson;
+      grid-row: 2 / span 3;  
+    }
+    
+    &--7 {
+      background-color: pakevioletred;
+      grid-row: 1 / -1;
+    }
+  }
+}
+
+ '/-------------------------------------------------------------------------------------
+       '/-------------------------------------------------------------------------------------
+               '/-------------------------------------------------------------------------------------
+        // --------------  ['max-content'], ['min-content'] & ⭐ ['minmax()' function]  ⭐ -------------- 
+
+// ['max-content'] --> makes the column/row tracks as wide/high as possible inorder to fit the content inside, without causeing any line breaks in the content.
+// ['min-content'] --> makes the column/row tracks take the largest width/hight that is needed to fit the content without overflowing
+// ['minmax()' function] --> takes in two arguments, then CSS insures that the column/row track will ALWAYS stay between these two arguments. [minmax(lowest, highest)] ⭐⭐⭐   MOST IMAPORTANT
+                            ie: grid-template-columns: minmax(100px, 200px); --> CSS Grid will ensure that no matter what this Grid column will always stay between 100px and 200px width.
+                            
+                            
+// 🛑🛑🛑 IMPORTANT NOTE ABOUT fractional units ['fr']. A fractional unit fills up the entire remianing space BUT IT IS NEVER SMALLER THAN THE MINIMUM CONTENT OF THE grid cell without overflowing.
+              
+                                
+<div class="container">
+  <div class="item item--1">Modern</div>
+  <div class="item item--2">CSS</div>
+  <div class="item item--3">with</div>
+  <div class="item item--4">FlexBox</div>
+  <div class="item item--5">and =</div>
+  <div class="item item--6">Grid</div>
+  <div class="item item--7">is</div>
+  <div class="item item--8">Great</div>
+</div>
+
+.container {
+  width: 90%;
+  margin: 1rem auto;
+  background-color: #ddd;
+  
+  display: grid;
+ // ------- 👇 Using ['max-content'], ['min-content']
+  // grid-template-columns: max-content 1fr 1fr min-content; 
+  // grid-template-row: repeat(2, min-content); 
+  
+ // ------- 👇 Using ['minmax()' function]
+  grid-template-columns: minmax(200px, 300px) repeat(3, 1fr); // 🟠 First column --> min-width 200px AND max-width 300px
+  grid-template-columns: minmax(200px, 50%) repeat(3, 1fr); // 🟣 First column --> min-width 200px AND max-width 50% of container width
+  grid-template-columns: minmax(200px, 1fr) repeat(3, 1fr); // 🟡 First column --> min-width 200px AND max-width same width as all other columns but STOPS getting decreased as soon as it reaches 200px width while screen size is getting smaller
+  
+  grid-template-row: repeat(100px, minmax(100px,  min-content); // row height to be atleast 100px and MAXIMUM min-content (content with)
+  
+ 
+  .item{
+    padding: 20px;
+    color: white;
+    font-family: sans-serif;
+    background-color: orangered;
+    
+    &--1 {
+      
+    }
+    
+    &--2 {
+      
+    }
+  }
+}
+
+ '/-------------------------------------------------------------------------------------
+       '/-------------------------------------------------------------------------------------
+               '/-------------------------------------------------------------------------------------
+// MOST IMPORTANT
+        // --------------  ['auto-fit'] && ['autofill'] keywords  ⭐ -------------- ✨✨✨ And how to write responsive Layouts with them without writing a single media query ✨✨✨
+
+<div class="container">
+  <div class="item item--1">Modern</div>
+  <div class="item item--2">CSS</div>
+  <div class="item item--3">with</div>
+  <div class="item item--4">FlexBox</div>
+  <div class="item item--5">and</div>
+  <div class="item item--6">Grid</div>
+  <div class="item item--7">is</div>
+  <div class="item item--8">Great</div>
+</div>
+
+.container {
+  width: 1000px;
+  margin: 1rem auto;
+  background-color: #ddd;
+  
+  display: grid;
+  grid-template-row: repeat(100px, minmax(100px,  min-content); 
+  
+//   'auto-fill'
+  // ----  If we didnt want to specify number of items that will be in a grid column like so  'grid-template-columns: repeat(4, 1fr);' and we just wanted the grid to adapt to the number of items that we have. This is where 'auto-fill' comes in 👇👇
+  'auto-fill' --> automatically creates as many tracks with the desired width specified inorder to fit in the container. Even creates empty tracks with no items inside if we dont have enpought items to fill the entire width of the container.
+  grid-template-columns: repeat(auto-fill, 100px); // So if we have a '1000px' width container. Then 'auto-fill' will automatically create 10 grid columns to make the items fill up the entire available width of the container.
+  
+  // ⭐⭐⭐⭐ 'auto-fit' [VERY IMPORTANT] ⭐⭐⭐⭐
+ // ----  👇👇
+     // Creates as many tracks as can fit based on the WIDTH that we define
+  'auto-fit' --> Does the same thing as 'auto-fill' except EMPTY tracks with no items inside, gets collapsed and get a width of 0. WHICH ALLOWS US TO DO SOMETHING VERY USEFULL --> by using the 'minmax' function inorder to make the grid items occupy the entire container width, filling any empty space that was left over, by expanding the columns widths.
+  ' As the screen gets smaller, if we can no longer fit all items in the container columns while still having 100px width each, THEN 'auto-fit' with 'minmax()' function creates a new row and moves the items that cant have 100px width due to screen width being too small, TO THE NEXT ROW. 
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));  
+  grid-auto-row: 150px;
+  
+ 
+  .item{
+    padding: 20px;
+    color: white;
+    font-family: sans-serif;
+    background-color: orangered;
+    
+    &--1 {
+      
+    }
+    
+    &--2 {
+      
+    }
+  }
+}
